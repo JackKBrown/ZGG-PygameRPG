@@ -17,11 +17,12 @@ from code.battle import Battle
 
 
 class Overworld:
-    def __init__(self, game):
+    def __init__(self, game, level):
         self.game = game
+        self.level = level
         #TODO load level through designated json file
         self.entities_path="data/maps/map_Entities.csv"
-        self.tmx_data = load_pygame('graphics\Tiled\maps\demo.tmx')
+        self.tmx_data = load_pygame(self.level.map_path)
 
         # get the display surface 
         self.display_surface = pygame.display.get_surface()
@@ -87,7 +88,7 @@ class Overworld:
     
     def begin_encounter(self):
         battle = Battle(self.game, self, ['enemy1', 'enemy2'])
-        self.game.level = battle
+        self.game.current_screen = battle
     
     def run(self):
         self.background_sprites.custom_draw(self.player)

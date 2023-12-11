@@ -34,7 +34,7 @@ class Battle():
                 self.can_move=True
          
     def exit_battle(self):
-        self.game.level = self.overworld
+        self.game.current_screen = self.overworld
            
     def run(self):
         #self.cooldowns()

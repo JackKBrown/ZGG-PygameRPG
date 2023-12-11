@@ -2,6 +2,7 @@ import pygame, sys
 from code.support import *
 from code.overworld import Overworld
 from code.mechanics.character import Character
+from code.level import Level
 #from code.menu import Menu
 
 class Game:
@@ -14,7 +15,8 @@ class Game:
         pygame.display.set_caption('Zethe Game Game')
         self.clock = pygame.time.Clock()
         self.display = pygame.Surface((int(self.settings["WIDTH"]/2),int(self.settings["HEIGHT"]/2)))
-        self.level = Overworld(self)
+        self.level = Level("data/maps/petra_genis.json")
+        self.current_screen = Overworld(self,self.level)
         self.party = {
             'zethe' : Character("Zethe")
         }
@@ -27,10 +29,10 @@ class Game:
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        self.level.begin_encounter()
+                        self.current_screen.begin_encounter()
 
             self.display.fill('black')
-            self.level.run()
+            self.current_screen.run()
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0,0))#purpose of this is to make scaling small pixel art a lot easier
             pygame.display.update()
             self.clock.tick(self.settings["FPS"])
