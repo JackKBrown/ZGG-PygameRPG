@@ -7,25 +7,13 @@ class Battle():
         # pass the overworld into the battle so it can give it back to the game loop when the encounter is over
         
     def input(self):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_m]:
-            self.exit_battle()
+        for event in self.game.events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_f:
+                    self.exit_battle()
         # if self.can_move:
         #     if keys[pygame.K_d]:
         #         self.select_index+=1
-        #         self.can_move=False
-        #         self.select_time=pygame.time.get_ticks()
-        #     elif keys[pygame.K_a]:
-        #         self.select_index-=1
-        #         self.can_move=False
-        #         self.select_time=pygame.time.get_ticks()
-        #     elif keys[pygame.K_SPACE]:
-        #         self.can_move=False
-        #         self.select_time=pygame.time.get_ticks()
-        #         print(self.select_index)
-            
-        #     if self.select_index >= len(self.attribute_names):
-        #         self.select_index=0
     
     def cooldowns(self):
         current_time = pygame.time.get_ticks()

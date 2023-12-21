@@ -14,7 +14,7 @@ class Player(Entity):
         keys = pygame.key.get_pressed()
         
         #movement input
-        if self.destination == self.pos:
+        if self.dest_tile == None:
             if keys[pygame.K_w]:
                 self.direction.x=0
                 self.direction.y=-1

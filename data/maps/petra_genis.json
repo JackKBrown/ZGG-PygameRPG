@@ -1,4 +1,5 @@
 {
     "name":"Petra Genis",
-    "map_path":"graphics\\Tiled\\maps\\demo.tmx"
+    "map_path":"graphics\\Tiled\\maps\\demo.tmx",
+    "start_pos":"defaultstart"
 }
