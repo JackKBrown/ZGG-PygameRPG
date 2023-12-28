@@ -103,7 +103,7 @@ class Overworld:
         #sys.exit()
     
     def begin_encounter(self):
-        battle = Battle(self.game, self, ['enemy1', 'enemy2'])
+        battle = Battle(self.game, self, ['crab', 'crab','crab'])
         self.game.current_screen = battle
     
     def load_overworld(self, rect):
