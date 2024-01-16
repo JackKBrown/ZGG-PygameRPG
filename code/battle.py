@@ -14,22 +14,25 @@ class Battle():
         for monster in enemies:
             self.enemies.append(Enemy(f"data//enemies//{str(monster)}.json"))
         self.enemy_postition= [
-            (0.6,0.6),
-            (0.7,0.7),
+            (0.6,0.4),
             (0.7,0.5),
-            (0.6,0.8),
-            (0.6,0.4)
+            (0.7,0.3),
+            (0.6,0.6),
+            (0.6,0.2),
+            (0.8,0.3),
+            (0.9,0.6),
+            (0.8,0.2)
         ]
         self.ally_position = [
-            (0.3,0.6),
-            (0.2,0.7),
-            (0.2,0.5)
+            (0.3,0.4),
+            (0.2,0.5),
+            (0.2,0.3)
         ]
      
     def input(self):
         for event in self.game.events:
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_f:
+                if event.key == pygame.K_ESCAPE:
                     self.exit_battle()
         # if self.can_move:
         #     if keys[pygame.K_d]:
@@ -64,5 +67,14 @@ class Battle():
         #display background
         #display enemies
         #display players
-        #update entities
         
+class CharacterInfo():
+    def __init__(self, game, character, l, t, font):
+        self.character = character
+        #load image / create rectangle
+        #
+        
+    def display(self, surface):
+        pass
+        #todo
+        #pygame.draw.rect(surface, self.game.settings['UI_BG_COLOUR'])
