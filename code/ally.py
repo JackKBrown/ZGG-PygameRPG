@@ -15,3 +15,9 @@ class Ally():
         else:
             self.image = pygame.image.load('graphics/test/zethearmour.png').convert_alpha()
         self.rect = self.image.get_rect(topleft = (0,0))
+        self.stats = {
+            "hp_max":100,
+            "hp":80,
+            "ep_max":30,
+            "ep":10
+        }

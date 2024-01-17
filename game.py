@@ -10,11 +10,14 @@ class Game:
           
         # general setup
         pygame.init()
-        self.settings = load_settings()
+        self.settings = load_user_settings()
         self.screen = pygame.display.set_mode((self.settings["WIDTH"],self.settings["HEIGHT"]))
         self.display = pygame.Surface((int(self.settings["WIDTH"]/2),int(self.settings["HEIGHT"]/2)))
         pygame.display.set_caption('Zethe Game Game')
         self.clock = pygame.time.Clock()
+        self.font = pygame.font.Font(UI_FONT, UI_FONT_SIZE)
+        self.large_font = pygame.font.Font(UI_FONT, LARGE_FONT_SIZE)
+        self.small_font = pygame.font.Font(UI_FONT, SMALL_FONT_SIZE)
         
         #load up game
         self.load_save("saves/T35T S4V3")

@@ -3,17 +3,38 @@ from csv import reader
 from os import walk
 import pygame
 
-SETTINGS_FILEPATH = "settings.json"
+USER_SETTINGS_FILEPATH = "settings.json"
+WIDTH= 1280
+HEIGHT= 720
+FPS= 60
+TILESIZE= 32
+SMALL_MARGIN=2
+UI_FONT= "graphics/font/joystix.ttf"
+UI_FONT_SIZE=12
+SMALL_FONT_SIZE=8
+LARGE_FONT_SIZE=18
+MENU_TEXT= "#665544"
+WATER_COLOUR= "#71ddee"
+UI_BG_COLOUR= "#222222"
+UI_BORDER_COLOUR= "#111111"
+TEXT_COLOUR= "#EEEEEE"
+HEALTH_COLOUR= "red"
+ENERGY_COLOUR= "blue"
+UI_BORDER_COLOUR_ACTIVE= "gold"
+TEXT_COLOUR_SELECTED= "#111111"
+BAR_COLOUR= "#EEEEEE"
+BAR_COLOUR_SELECTED= "#111111"
+UPGRADE_BG_COLOUR_SELECTED= "#EEEEEE"
 
-def load_settings():
+def load_user_settings():
     print("loading settings")
-    save_file = open(SETTINGS_FILEPATH, 'r')
+    save_file = open(USER_SETTINGS_FILEPATH, 'r')
     settings = json.load(save_file)
     save_file.close()
     return settings
     
-def save_settings(settings):
-    save_file = open(SETTINGS_FILEPATH, 'w')
+def save_user_settings(settings):
+    save_file = open(USER_SETTINGS_FILEPATH, 'w')
     json.dump(settings, save_file)
     save_file.close()
     
