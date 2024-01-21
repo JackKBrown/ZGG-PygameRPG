@@ -1,7 +1,16 @@
 import pygame
 from code.support import *
 from code.enemy import Enemy
-from code.ally import Ally
+from code.allies.ally import Ally
+from code.allies.zethe import Zethe
+
+state_list = [
+    "Initiative"
+    "EnemyAction", 
+    "PlayerAction",
+    "PlayerSelect",
+    "ChooseTarget"
+]
 
 class Battle():
     def __init__(self, game, overworld, enemies):
@@ -9,12 +18,19 @@ class Battle():
         self.overworld = overworld 
         self.enemies=[]
         self.allies=[
-            Ally("blargle"),
+            Zethe("blargle"),
             Ally("blargle")
         ]
+        self.activate_character=self.allies[0]
         # pass the overworld into the battle so it can give it back to the game loop when the encounter is over
         for monster in enemies:
             self.enemies.append(Enemy(f"data//enemies//{str(monster)}.json"))
+        
+        self.initiative = self.allies + self.enemies
+        self.initiative.sort(key=lambda x: x.stats["speed"], reverse=True)
+        self.initiative_index = 0
+        self.state= "Initiative"
+        
         self.enemy_postition= [
             (0.6,0.4),
             (0.7,0.5),
@@ -36,15 +52,75 @@ class Battle():
         self.info_margin = self.info_width / 5
         self.info_top = self.game.display.get_size()[1] - (self.info_height + self.info_margin)
         self.create_character_info()
+        self.battle_menu = BattleMenu(
+            self.game,
+            (3 * (self.info_width+ self.info_margin)) + self.info_margin,
+            self.info_top,
+            self.info_width,
+            self.info_height
+            )
+        #detirmine initiative order
+        #action timer
+        #input
+        self.select_index = 0
+        #choose target
+        self.target_list = self.enemies
+        self.target_index = 0
+        self.can_swap_target_list = True
+        self.target=None
+        #UI
+        self.topbar_text="hi"
+     
+    def set_target_state(self, target_list, can_swap = True):
+        self.state="ChooseTarget"
+        self.target_list = self.enemies
+        self.can_swap_target_list = True
+        self.target_index=0 
+        self.topbar_text=self.target_list[self.target_index].name
      
     def input(self):
         for event in self.game.events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.exit_battle()
-        # if self.can_move:
-        #     if keys[pygame.K_d]:
-        #         self.select_index+=1
+                if self.state == "PlayerSelect":
+                    if event.key == pygame.K_s:
+                        if self.select_index < len(self.activate_character.action_stack[-1])-1:
+                            self.select_index += 1
+                    if event.key == pygame.K_w:
+                        if self.select_index > 0:
+                            self.select_index -= 1
+                    if event.key == pygame.K_RIGHT:
+                        self.activate_character.select_action(list(self.activate_character.action_stack[-1])[self.select_index], self)
+                    if event.key == pygame.K_LEFT:
+                        self.activate_character.select_action("back", self)
+                elif self.state == "ChooseTarget":
+                    if event.key == pygame.K_s:
+                        self.target_index += 1
+                        if self.target_index == len(self.target_list): 
+                            self.target_index = 0
+                        self.topbar_text=self.target_list[self.target_index].name 
+                    if event.key == pygame.K_w:
+                        self.target_index -= 1
+                        if self.target_index == -1: 
+                            self.target_index = 0
+                        self.topbar_text=self.target_list[self.target_index].name 
+                    if event.key == pygame.K_a:
+                        if self.can_swap_target_list:
+                            self.target_index=0
+                            self.target_list=self.allies
+                        self.topbar_text=self.target_list[self.target_index].name 
+                    if event.key == pygame.K_d:
+                        if self.can_swap_target_list:
+                            self.target_index=0
+                            self.target_list=self.enemies
+                        self.topbar_text=self.target_list[self.target_index].name 
+                    if event.key == pygame.K_RIGHT:
+                        #selects the target
+                        pass
+                    if event.key == pygame.K_LEFT:
+                        #TODO need to change the state back to PlayerSelect and whatever was previously on the action stack
+                        pass
     
     def cooldowns(self):
         current_time = pygame.time.get_ticks()
@@ -67,28 +143,86 @@ class Battle():
         floor_rect = floor_surface.get_rect(topleft=(0,0))
         self.game.display.blit(floor_surface, (0,0))
         for index,enemy in enumerate(self.enemies):
+            enemy.animate() 
             x = self.game.display.get_size()[0] * self.enemy_postition[index][0]
             y = self.game.display.get_size()[1] * self.enemy_postition[index][1]
             self.game.display.blit(enemy.image, (x,y))
         for index,ally in enumerate(self.allies):
+            ally.animate()
             x = self.game.display.get_size()[0] * self.ally_position[index][0]
             y = self.game.display.get_size()[1] * self.ally_position[index][1]
             self.game.display.blit(ally.image, (x,y))
         for index, item in enumerate(self.character_info_list):
             # get attributes
             item.display(self.game.display)
-           
+        if self.activate_character != None:
+            self.battle_menu.display(self.game.display, self.activate_character, self.select_index)
+        self.display_topbar(self.game.display)
+    
+    def display_topbar(self, surface):
+        if self.topbar_text != None:
+            tb_surf = self.game.small_font.render(self.topbar_text, False, TEXT_COLOUR)
+            tb_rect = tb_surf.get_rect(midtop = surface.get_rect().midtop + pygame.Vector2(0,10))
+            tb_bg_rect = tb_rect.inflate(2,2)
+            pygame.draw.rect(surface, UI_BG_COLOUR, tb_bg_rect)
+            pygame.draw.rect(surface,UI_BORDER_COLOUR,tb_bg_rect,2)
+            surface.blit(tb_surf, tb_rect)
+            
+            
     def run(self):
         #self.cooldowns()
         self.input()
         self.display()
+        if self.state == "Initiative":
+            # see who is next in initiative
+            # if next is an enemy run the take turn function
+            # elif next is pc set them as the active player and update the state
+            self.state = "PlayerSelect"
+            pass
+        elif self.state == "EnemyAction":
+            # Do action animation then callback the action to complete the effects
+            pass
+        elif self.state == "PlayerSelect":
+            #wait for player to select action
+            #can probably delete this elif as all the state stuff happens in the input
+            pass
+        elif self.state == "PlayerAction":
+            #
+            pass
+        elif self.state == "ChooseTarget":
+            #do the targetting things
+            pass
+        else:
+            print("error state not in list")
         #display background
         #display enemies
         #display players
         
 class BattleMenu():
-    def __init__(self, game, character, l, t, w, h):
+    def __init__(self, game, l, t, w, h):
         self.game = game
+        self.rect = pygame.Rect(l,t,w,h, border_radius=15)
+        self.top_of_list = 0
+        
+    def display_option(self, surface, top, name, hover):
+        #action
+        name_surf =  self.game.font.render(name, False, TEXT_COLOUR)
+        box_rect = pygame.Rect(self.rect.left + 2, top, self.rect.width - 4, name_surf.get_height() + 4)
+        name_rect = name_surf.get_rect(topleft = box_rect.topleft +pygame.math.Vector2(2,2))  
+        surface.blit(name_surf, name_rect)
+        if hover:
+            pygame.draw.rect(surface,"#EEE000",box_rect,1)    
+        return name_rect.bottom                      
+        
+    def display(self, surface, character, select_index):
+        pygame.draw.rect(surface, UI_BG_COLOUR, self.rect)
+        pygame.draw.rect(surface,UI_BORDER_COLOUR,self.rect,1)
+        top = self.rect.top + SMALL_MARGIN
+        #detirmine the range you're showing here then only look at options in that range? e.g for option in enumerate between index 5 and 8
+        for index, option in enumerate(character.action_stack[-1]):
+            if index <= self.top_of_list+4:
+                top = self.display_option(surface, top, option, index==select_index)
+            
         
 class CharacterInfo():
     def __init__(self, game, character, l, t, w, h):

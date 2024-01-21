@@ -1,4 +1,5 @@
 import pygame
+from code.support import *
 from code.sprites.tile import Tile
 
 class Entity(pygame.sprite.Sprite):
@@ -6,7 +7,6 @@ class Entity(pygame.sprite.Sprite):
         super().__init__(groups)
         self.game = game
         self.frame_index = 0
-        self.animation_speed=0.2
         self.speed=2
         self.direction=pygame.math.Vector2()
         
@@ -15,8 +15,21 @@ class Entity(pygame.sprite.Sprite):
         self.destination = list(pos)
         self.dest_tile=None
         print(self.pos)
+        self.animation_speed=DEF_ANIM_SPEED
+        self.status = "idle"
+        self.frame_index=0
+        self.blink=False
+        self.import_assets()
+    
+    def import_assets(self):
+        character_path = 'graphics/player/'
+        self.animations = {'idle': []}
         
-        
+        for animation in self.animations.keys():
+            full_path=character_path+animation
+            self.animations[animation] = import_folder(full_path)
+            
+        print(self.animations)    
     
     def move(self):
         #print(self.direction)
@@ -61,7 +74,20 @@ class Entity(pygame.sprite.Sprite):
         return pos
             
     def animate(self):
+        animation = self.animations[self.status]
+        #loop over frame index
+        self.frame_index += self.animation_speed
+        if self.frame_index >= len(animation):
+            self.frame_index =0
+        
+        self.image = animation[int(self.frame_index)]
         self.rect = self.image.get_rect(topleft=self.pos)
+        
+        if self.blink:
+            alpha=wave_value()
+            self.image.set_alpha(alpha)
+        else:
+            self.image.set_alpha(255)
     
     def update(self):
         self.move()

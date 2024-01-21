@@ -1,16 +1,20 @@
 import json
+from math import sin
 from csv import reader
 from os import walk
 import pygame
 
+DEF_ANIM_SPEED=0.1
 USER_SETTINGS_FILEPATH = "settings.json"
 WIDTH= 1280
 HEIGHT= 720
 FPS= 60
 TILESIZE= 32
 SMALL_MARGIN=2
+MEDIUM_MARGIN = 5
+LARGE_MARGIN = 10
 UI_FONT= "graphics/font/joystix.ttf"
-UI_FONT_SIZE=12
+UI_FONT_SIZE=11
 SMALL_FONT_SIZE=8
 LARGE_FONT_SIZE=18
 MENU_TEXT= "#665544"
@@ -37,7 +41,13 @@ def save_user_settings(settings):
     save_file = open(USER_SETTINGS_FILEPATH, 'w')
     json.dump(settings, save_file)
     save_file.close()
-    
+ 
+def wave_value():
+    value = sin(pygame.time.get_ticks())
+    if value >= 0 :
+        return 255
+    else:
+        return 25   
 
 def import_csv_layout(path):
     terrain_map = []
