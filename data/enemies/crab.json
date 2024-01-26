@@ -1,4 +1,13 @@
 {
     "name":"Crab",
-    "image_path":"graphics\\test\\crabstill.png"
+    "image_path":"graphics\\test\\crabstill.png",
+    "stats":{
+        "hp_max":100,
+        "hp":80,
+        "ep_max":30,
+        "ep":10,
+        "speed": 5,
+        "str": 5,
+        "def": 5
+    }
 }

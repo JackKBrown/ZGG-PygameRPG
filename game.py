@@ -1,4 +1,6 @@
 import pygame, sys
+from code.allies.ally import Ally
+from code.allies.zethe import Zethe
 from code.support import *
 from code.overworld import Overworld
 from code.mechanics.character import Character
@@ -21,9 +23,6 @@ class Game:
         
         #load up game
         self.load_save("saves/T35T S4V3")
-        self.party = {
-            'zethe' : Character("Zethe")
-        }
         
     def load_save(self, save_folder):
         print("loading save")
@@ -34,8 +33,25 @@ class Game:
         save_file.close()
         self.load_level(self.save_data["current_level"])
         
-        #TODO load party 
+        #TODO load party from save file
+        self.party = []
+        # this dict should be loaded from the save file
+        members = {
+            "Zethe":"path/to/zethe",
+            "TestAlly":"path/to/testally"
+        } 
+        if "Zethe" in members:
+            self.party.append(Zethe(members["Zethe"]))
+        if "TestAlly" in members:
+            self.party.append(Ally(members["TestAlly"]))
         #TODO load gear and money
+        #This should be a complete dict of every item in the game 
+        #load this from the save file
+        self.inventory = {
+            "potion":2,
+            "bomb":2,
+            "nuke":0
+        }
         #TODO load events
     
     def load_level(self, current_level, start_pos=None):

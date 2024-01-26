@@ -5,7 +5,7 @@ from code.support import *
 
 class Enemy():
     def __init__(self, enemy_path):
-        print("loading level")
+        print("loading Enemy")
         save_file = open(enemy_path, 'r')
         self.data = json.load(save_file)
         save_file.close()
@@ -14,14 +14,14 @@ class Enemy():
         self.image_path = self.data['image_path']
         self.image = pygame.image.load(self.image_path).convert_alpha()
         self.rect = self.image.get_rect(topleft = (0,0))
-        self.stats = {
-            "speed": random.randint(1,5)
-        }
+        self.stats = self.data["stats"]
+        self.stats["speed"] + random.randint(1,20)
         self.blink = False
         self.status= "idle"
         self.animation_speed=DEF_ANIM_SPEED
         self.frame_index=0
         self.import_assets()
+        self.pos=(0,0)
     
     def import_assets(self):
         character_path = 'graphics/player/'
@@ -30,8 +30,6 @@ class Enemy():
         for animation in self.animations.keys():
             full_path=character_path+animation
             self.animations[animation] = import_folder(full_path)
-            
-        print(self.animations)
         
     def animate(self):
         animation = self.animations[self.status]
@@ -41,7 +39,7 @@ class Enemy():
             self.frame_index =0
         
         self.image = animation[int(self.frame_index)]
-        self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect(topleft=self.pos)
         
         if self.blink:
             alpha=wave_value()
@@ -55,4 +53,4 @@ class Enemy():
     
     def attack(self, battle):
         print("doing attack")
-        pass
+        battle.state="Initiative"

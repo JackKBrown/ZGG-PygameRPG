@@ -8,6 +8,19 @@ class Menu():
         self.font = pygame.font.Font(self.game.settings["UI_FONT"], self.game.settings["UI_FONT_SIZE"])
         
         #options
+        self.option_stack = []
+        self.actions = {
+            "attack": self.attack, 
+            "magic":{
+                "fire":self.fire
+                }, 
+            "utopic":{
+                "VRO":self.vro
+                }, 
+            "item":self.item
+        }
+        self.action_stack.append(self.actions)
+        
         self.options=["items", "equip", "party", "settings"]
         self.option_width = self.game.display.get_size()[0] / (len(self.options)+1)
         self.option_height = self.game.display.get_size()[1] * 0.1
@@ -28,30 +41,27 @@ class Menu():
             self.option_list.append(item)
     
     def input(self):
-        keys = pygame.key.get_pressed()
-        if self.can_move:
-            if keys[pygame.K_d]:
-                self.select_index+=1
-                self.can_move=False
-                self.select_time=pygame.time.get_ticks()
-            elif keys[pygame.K_a]:
-                self.select_index-=1
-                self.can_move=False
-                self.select_time=pygame.time.get_ticks()
-            elif keys[pygame.K_SPACE]:
-                self.can_move=False
-                self.select_time=pygame.time.get_ticks()
-                print(self.select_index)
+        for event in self.game.events:
+            if event.key == pygame.K_s:
+                if self.select_index < len(self.option_stack[-1])-1:
+                    self.select_index += 1
+            if event.key == pygame.K_w:
+                if self.select_index > 0:
+                    self.select_index -= 1
+            if event.key == pygame.K_RIGHT:
+                pass
+                #select current select_index
+            if event.key == pygame.K_LEFT:
+                pass
+                #go back or if on top menu exit_menu
+            if event.key == pygame.K_SPACE:
                 self.exit_menu()
             
             if self.select_index >= len(self.options):
                 self.select_index=0
-    
-    def cooldowns(self):
-        current_time = pygame.time.get_ticks()
-        if not self.can_move:
-            if current_time-self.select_time >= 300:
-                self.can_move=True
+
+    def exit_menu(self):
+        self.game.current_screen = self.overworld
     
     def display(self):
         self.input()
@@ -59,10 +69,7 @@ class Menu():
             # get attributes
             item.display(self.display_surface,self.select_index, 1,2,3,4)
         self.cooldowns()
-        
-    def exit_menu(self):
-        self.game.current_screen = self.overworld
-        
+                
     def run(self):
         self.input()
         self.display()

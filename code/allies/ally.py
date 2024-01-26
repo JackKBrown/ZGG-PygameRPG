@@ -18,7 +18,9 @@ class Ally():
             "hp":80,
             "ep_max":30,
             "ep":10,
-            "speed": random.randint(1,5)
+            "speed": 5 + random.randint(1,20), #This needs changing
+            "str": 10,
+            "def": 10
         }
         self.actions={
             "attack":self.attack, 
@@ -31,6 +33,7 @@ class Ally():
         self.animation_speed=DEF_ANIM_SPEED
         self.frame_index=0
         self.import_assets()
+        self.pos=(0,0)
     
     def import_assets(self):
         character_path = 'graphics/player/'
@@ -39,8 +42,6 @@ class Ally():
         for animation in self.animations.keys():
             full_path=character_path+animation
             self.animations[animation] = import_folder(full_path)
-            
-        print(self.animations)
     
     def animate(self):
         animation = self.animations[self.status]
@@ -50,7 +51,7 @@ class Ally():
             self.frame_index =0
         
         self.image = animation[int(self.frame_index)]
-        self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect(topleft=self.pos)
         
         if self.blink:
             alpha=wave_value()
@@ -61,22 +62,29 @@ class Ally():
     def select_action(self, action, battle):
         if action == "back" : 
             if len(self.action_stack) > 1:
+                battle.select_index=0
                 self.action_stack.pop() # remove top of stack
         else:
             proposed_action = self.action_stack[-1][action] # get top of stack
             if isinstance(proposed_action, dict):
+                battle.select_index=0
                 self.action_stack.append(proposed_action)
             else:
-                self.action_stack = [] # reset action stack to base menu
-                self.action_stack.append(self.actions)
+                battle.player_action=proposed_action
                 proposed_action(battle)
-                
+    
+    def reset_action(self,battle):
+        self.action_stack = [] # reset action stack to base menu
+        self.action_stack.append(self.actions)
+        battle.state="Initiative"
+        battle.target=None
         
     def attack(self, battle):
         if battle.target == None:
             battle.set_target_state(battle.enemies)
         else:
             print("doing attack")
+            self.reset_action(battle)
         
     def item(self, battle):
         print("using item")

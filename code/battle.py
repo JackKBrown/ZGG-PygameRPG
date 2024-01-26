@@ -1,4 +1,5 @@
 import pygame
+from code.sprites.effect import Effect
 from code.support import *
 from code.enemy import Enemy
 from code.allies.ally import Ally
@@ -16,12 +17,13 @@ class Battle():
     def __init__(self, game, overworld, enemies):
         self.game = game
         self.overworld = overworld 
+        self.sprites = pygame.sprite.Group()
+        self.target_triangle = Effect(game, [], (0,0), "graphics/animations/select_triangle")
+        self.floor_surface = pygame.image.load('graphics/test/battlefield.png').convert()
+        
         self.enemies=[]
-        self.allies=[
-            Zethe("blargle"),
-            Ally("blargle")
-        ]
-        self.activate_character=self.allies[0]
+        self.allies=game.party
+        self.activate_character=None
         # pass the overworld into the battle so it can give it back to the game loop when the encounter is over
         for monster in enemies:
             self.enemies.append(Enemy(f"data//enemies//{str(monster)}.json"))
@@ -46,6 +48,8 @@ class Battle():
             (0.2,0.5),
             (0.2,0.3)
         ]
+        self.place_group(self.enemies, self.enemy_postition)
+        self.place_group(self.allies, self.ally_position)
         #character info 
         self.info_width = self.game.display.get_size()[0] / 5 
         self.info_height = self.game.display.get_size()[1] * 0.2
@@ -116,11 +120,10 @@ class Battle():
                             self.target_list=self.enemies
                         self.topbar_text=self.target_list[self.target_index].name 
                     if event.key == pygame.K_RIGHT:
-                        #selects the target
-                        pass
+                        self.target = self.target_list[self.target_index]
+                        self.state = "PlayerAction"
                     if event.key == pygame.K_LEFT:
-                        #TODO need to change the state back to PlayerSelect and whatever was previously on the action stack
-                        pass
+                        self.state="PlayerSelect"
     
     def cooldowns(self):
         current_time = pygame.time.get_ticks()
@@ -137,27 +140,34 @@ class Battle():
             left = (index * (self.info_width+ self.info_margin)) + self.info_margin
             item = CharacterInfo(self.game, ally, left, self.info_top, self.info_width, self.info_height)
             self.character_info_list.append(item)
+    
+    def place_group(self, group, position_array):
+        for index,model in enumerate(group):
+            model.animate() 
+            x = self.game.display.get_size()[0] * position_array[index][0]
+            y = self.game.display.get_size()[1] * position_array[index][1]
+            model.pos=(x,y)
+            #self.game.display.blit(model.image, (x,y))
             
     def display(self):
-        floor_surface = pygame.image.load('graphics/test/battlefield.png').convert()
-        floor_rect = floor_surface.get_rect(topleft=(0,0))
-        self.game.display.blit(floor_surface, (0,0))
-        for index,enemy in enumerate(self.enemies):
-            enemy.animate() 
-            x = self.game.display.get_size()[0] * self.enemy_postition[index][0]
-            y = self.game.display.get_size()[1] * self.enemy_postition[index][1]
-            self.game.display.blit(enemy.image, (x,y))
-        for index,ally in enumerate(self.allies):
+        self.game.display.blit(self.floor_surface, (0,0))
+        for enemy in self.enemies:
+            enemy.animate()
+            self.game.display.blit(enemy.image, enemy.rect)
+        for ally in self.allies:
             ally.animate()
-            x = self.game.display.get_size()[0] * self.ally_position[index][0]
-            y = self.game.display.get_size()[1] * self.ally_position[index][1]
-            self.game.display.blit(ally.image, (x,y))
+            self.game.display.blit(ally.image, ally.rect)
         for index, item in enumerate(self.character_info_list):
             # get attributes
             item.display(self.game.display)
         if self.activate_character != None:
             self.battle_menu.display(self.game.display, self.activate_character, self.select_index)
         self.display_topbar(self.game.display)
+        if self.state == "ChooseTarget":
+            target_pos=self.target_list[self.target_index].pos - pygame.Vector2(0,self.target_triangle.rect.height)
+            self.target_triangle.pos=target_pos
+            self.target_triangle.update()
+            self.game.display.blit(self.target_triangle.image, self.target_triangle.rect)
     
     def display_topbar(self, surface):
         if self.topbar_text != None:
@@ -176,19 +186,29 @@ class Battle():
         if self.state == "Initiative":
             # see who is next in initiative
             # if next is an enemy run the take turn function
+            init_entity = self.initiative[self.initiative_index]
+            self.initiative_index +=1
+            if self.initiative_index == len(self.initiative):
+                self.initiative_index =0
+            if init_entity in self.enemies:
+                print("enemy next")
+                self.enemy_action = init_entity.take_turn(self)
+                self.state = "EnemyAction"
+            elif init_entity in self.allies:
+                print("ally next")
+                self.activate_character = init_entity
+                self.state = "PlayerSelect"
             # elif next is pc set them as the active player and update the state
-            self.state = "PlayerSelect"
-            pass
         elif self.state == "EnemyAction":
             # Do action animation then callback the action to complete the effects
-            pass
+            self.enemy_action(self)
         elif self.state == "PlayerSelect":
             #wait for player to select action
             #can probably delete this elif as all the state stuff happens in the input
             pass
         elif self.state == "PlayerAction":
             #
-            pass
+            self.player_action(self)
         elif self.state == "ChooseTarget":
             #do the targetting things
             pass
