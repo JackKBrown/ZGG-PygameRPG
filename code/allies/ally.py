@@ -12,7 +12,8 @@ class Ally():
         #self.level_path = enemy_path
         #self.name = self.data['name']
         #self.image_path = self.data['image_path']
-        self.name="ally_path"
+        self.face_image = pygame.image.load("graphics/test/zethearmour.png").convert_alpha()
+        self.name="def_ally"
         self.stats = {
             "hp_max":100,
             "hp":80,

@@ -4,6 +4,7 @@ import pygame
 class Zethe(Ally):
     def __init__(self, ally_path):
         super().__init__(ally_path)
+        self.name="Zethe Wayright"
         self.action_stack.pop()
         self.actions = {
             "attack": self.attack, 
