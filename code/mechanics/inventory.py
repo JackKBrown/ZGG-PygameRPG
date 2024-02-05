@@ -1,18 +1,15 @@
 import pygame
 
 class Inventory:
-    def __init__(self, inventory_path):
+    def __init__(self, consumable_dict, equipment_dict):
         #load inventory from json file
-        self.inventory = {
-            "Potion":4,
-            "Grt Potion":1,
-            "Bomb":0,
-            "Antidote": 1
-        }
+        self.consumables=consumable_dict
+        self.equipment = equipment_dict
+        
         
     def use_item(self):
         pass
     
-    def add_item(self):
+    def add_item(self, item_name, quantity):
         pass
         

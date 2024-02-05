@@ -1,3 +1,9 @@
 {
-    "current_level":"data/maps/petra_genis.json"
+    "current_level":"data/maps/petra_genis.json",
+    "inventory": {
+        "Potion":4,
+        "Grt Potion":1,
+        "Bomb":0,
+        "Antidote": 1
+    }
 }

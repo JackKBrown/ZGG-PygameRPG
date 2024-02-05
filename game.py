@@ -1,9 +1,9 @@
 import pygame, sys
 from code.allies.ally import Ally
 from code.allies.zethe import Zethe
+from code.mechanics.inventory import Inventory
 from code.support import *
 from code.overworld import Overworld
-from code.mechanics.character import Character
 from code.level import Level
 #from code.menu import Menu
 
@@ -41,17 +41,13 @@ class Game:
             "TestAlly":"path/to/testally"
         } 
         if "Zethe" in members:
-            self.party.append(Zethe(members["Zethe"]))
+            self.party.append(Zethe(self,members["Zethe"]))
         if "TestAlly" in members:
-            self.party.append(Ally(members["TestAlly"]))
+            self.party.append(Ally(self,members["TestAlly"]))
         #TODO load gear and money
         #This should be a complete dict of every item in the game 
         #load this from the save file
-        self.inventory = {
-            "potion":2,
-            "bomb":2,
-            "nuke":0
-        }
+        self.inventory = Inventory(self.save_data["inventory_path"])
         #TODO load events
     
     def load_level(self, current_level, start_pos=None):

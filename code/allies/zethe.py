@@ -2,8 +2,8 @@ from code.allies.ally import Ally
 import pygame
 
 class Zethe(Ally):
-    def __init__(self, ally_path):
-        super().__init__(ally_path)
+    def __init__(self,game, ally_path):
+        super().__init__(game, ally_path)
         self.name="Zethe Wayright"
         self.action_stack.pop()
         self.actions = {
@@ -14,7 +14,7 @@ class Zethe(Ally):
             "utopic":{
                 "VRO":self.vro
                 }, 
-            "item":self.item
+            "item":self.fetch_item_list
         }
         self.action_stack.append(self.actions)
         

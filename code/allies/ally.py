@@ -4,7 +4,8 @@ import random
 from code.support import *
 
 class Ally():
-    def __init__(self, ally_path):
+    def __init__(self,game,ally_path):
+        self.game = game
         #print("loading level")
         #save_file = open(enemy_path, 'r')
         #self.data = json.load(save_file)
@@ -25,16 +26,23 @@ class Ally():
         }
         self.actions={
             "attack":self.attack, 
-            "item":self.item
+            "item":self.fetch_item_list
         }
         self.action_stack = []
         self.action_stack.append(self.actions)
+        self.in_inventory = False
         self.status="idle"
         self.blink=False
         self.animation_speed=DEF_ANIM_SPEED
         self.frame_index=0
         self.import_assets()
         self.pos=(0,0)
+        self.consumable_actions = {
+            "Potion": self.use_potion,
+            "Grt Potion":self.use_great_potion,
+            "Bomb":self.use_bomb,
+            "Antidote": self.use_antidote
+        }
     
     def import_assets(self):
         character_path = 'graphics/player/'
@@ -63,6 +71,8 @@ class Ally():
     def select_action(self, action, battle):
         if action == "back" : 
             if len(self.action_stack) > 1:
+                if self.in_inventory:
+                    self.in_inventory=False
                 battle.select_index=0
                 self.action_stack.pop() # remove top of stack
         else:
@@ -70,6 +80,8 @@ class Ally():
             if isinstance(proposed_action, dict):
                 battle.select_index=0
                 self.action_stack.append(proposed_action)
+            elif self.in_inventory:
+                item_action = self.consumable_actions["item"]
             else:
                 battle.player_action=proposed_action
                 proposed_action(battle)
@@ -80,6 +92,12 @@ class Ally():
         battle.state="Initiative"
         battle.target=None
         
+    def fetch_item_list(self, battle):
+        self.in_inventory=True
+        #get list of items which you have an inventory of and append it to action stack
+        
+        print("using item")
+        
     def attack(self, battle):
         if battle.target == None:
             battle.set_target_state(battle.enemies)
@@ -87,5 +105,10 @@ class Ally():
             print("doing attack")
             self.reset_action(battle)
         
-    def item(self, battle):
-        print("using item")
+    
+    def use_potion(self,battle):
+        if battle.target == None:
+            battle.set_target_state(battle.allies)
+        else:
+            print("using potion")
+            self.reset_action(battle)
