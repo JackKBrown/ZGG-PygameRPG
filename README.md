@@ -1,4 +1,5 @@
 # Zethe Game Game
+An RPG inspired by Pathfinder and Final Fantasy
 
 ## Sources
 - making a zelda game in pygame tutorial
