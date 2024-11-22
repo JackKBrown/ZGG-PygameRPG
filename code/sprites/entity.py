@@ -67,7 +67,8 @@ class Entity(pygame.sprite.Sprite):
         if(self.game.current_screen.collide_obstacle(future_rect)):
             return self.pos
         elif(self.game.current_screen.collide_event(future_rect)):
-            self.game.current_screen.load_overworld(future_rect)
+            #This is a collide event
+            self.game.current_screen.event_collide(future_rect)
             return pos #no collision tile this shouldn't cause issues?
         collision_tile = Tile(pos,pygame.Surface((self.image.get_rect().width, self.image.get_rect().height)),[self.game.current_screen.obstacle_sprites])
         self.dest_tile = collision_tile

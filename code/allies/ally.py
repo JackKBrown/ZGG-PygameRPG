@@ -76,27 +76,34 @@ class Ally():
                 battle.select_index=0
                 self.action_stack.pop() # remove top of stack
         else:
-            proposed_action = self.action_stack[-1][action] # get top of stack
-            if isinstance(proposed_action, dict):
-                battle.select_index=0
-                self.action_stack.append(proposed_action)
-            elif self.in_inventory:
-                item_action = self.consumable_actions["item"]
-            else:
-                battle.player_action=proposed_action
-                proposed_action(battle)
+            #must have at least one valid action
+            if len(self.action_stack[-1]) != 0:
+                proposed_action = self.action_stack[-1][action] # get top of stack
+                if isinstance(proposed_action, dict):
+                    battle.select_index=0
+                    self.action_stack.append(proposed_action)
+                elif self.in_inventory:
+                    item_action = self.consumable_actions[proposed_action]
+                    battle.player_action=item_action
+                    item_action(battle)
+                else:
+                    battle.player_action=proposed_action
+                    proposed_action(battle)
     
     def reset_action(self,battle):
+        self.in_inventory=False
         self.action_stack = [] # reset action stack to base menu
         self.action_stack.append(self.actions)
         battle.state="Initiative"
         battle.target=None
         
     def fetch_item_list(self, battle):
+        battle.proposed_action=None # reset this as you need to choose the item still
         self.in_inventory=True
         #get list of items which you have an inventory of and append it to action stack
-        
-        print("using item")
+        battle.select_index=0
+        self.action_stack.append(self.game.inventory.get_item_list())
+        print("fetching item list")
         
     def attack(self, battle):
         if battle.target == None:
@@ -105,10 +112,20 @@ class Ally():
             print("doing attack")
             self.reset_action(battle)
         
-    
+#ITEMS
+  
     def use_potion(self,battle):
         if battle.target == None:
             battle.set_target_state(battle.allies)
         else:
             print("using potion")
             self.reset_action(battle)
+    
+    def use_great_potion(self, battle):
+        pass
+    
+    def use_bomb(self,battle):
+        pass
+    
+    def use_antidote(self, battle):
+        pass

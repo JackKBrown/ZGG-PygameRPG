@@ -81,11 +81,12 @@ class Overworld:
                     y = door.y
                     h = door.height
                     w = door.width
+                    door_type = door.type
                     if door.type == "passage":
                         link = door.properties['link'] #name of another door
                     else:
                         link = None
-                    Door((x,y),pygame.Surface((w,h)), name, link, [self.visible_sprites, self.event_sprites])
+                    Door((x,y),pygame.Surface((w,h)), name, link, door_type, [self.visible_sprites, self.event_sprites])
             else:
                 if hasattr(layer,'data'):
                     for x,y,surf in layer.tiles():
@@ -106,7 +107,7 @@ class Overworld:
         battle = Battle(self.game, self, ['crab', 'crab','crab', 'crab', 'crab','crab', 'crab'])
         self.game.current_screen = battle
     
-    def load_overworld(self, rect):
+    def event_collide(self, rect):
         for sprite in self.event_sprites:
             if rect.colliderect(sprite.rect):
                 if hasattr(sprite, 'link') and sprite.link != None:

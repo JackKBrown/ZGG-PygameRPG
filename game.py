@@ -47,7 +47,7 @@ class Game:
         #TODO load gear and money
         #This should be a complete dict of every item in the game 
         #load this from the save file
-        self.inventory = Inventory(self.save_data["inventory_path"])
+        self.inventory = Inventory(self.save_data["consumables"], self.save_data["equipment"])
         #TODO load events
     
     def load_level(self, current_level, start_pos=None):
